@@ -3,10 +3,8 @@
 resume_data.py
 # source PDFs (LinkedIn export, old resume)
 Past Resources/
-# private working log (employers, notes)
-PROGRESS.md
-# private fact pool
-master-inventory.md
+# private working doc: status + verified fact pool
+CLAUDE.local.md
 
 # --- Generated resume outputs (contain PII) ---
 *.docx
