@@ -1,0 +1,28 @@
+# --- Personal data (never commit) ---
+# real content + contact details; use resume_data.example.py as the template
+resume_data.py
+# source PDFs (LinkedIn export, old resume)
+Past Resources/
+# private working log (employers, notes)
+PROGRESS.md
+# private fact pool
+master-inventory.md
+
+# --- Generated resume outputs (contain PII) ---
+*.docx
+*.pdf
+resume.html
+
+# --- Cover letters (personalized) ---
+cover-letters/*
+!cover-letters/.gitkeep
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- Editor / OS ---
+.DS_Store
+.claude/settings.local.json
