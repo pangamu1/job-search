@@ -7,6 +7,7 @@ Then render to PDF, e.g.:
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
     --no-pdf-header-footer --print-to-pdf=<out.pdf> file://<abs path to out.html>
 """
+import re
 import sys
 from html import escape
 
@@ -23,6 +24,9 @@ CSS = """
     line-height: 1.28;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    /* Disable fi/fl ligatures so PDF text extracts as plain "Airflow", not the
+       "Airﬂow" ligature glyph, which can break ATS keyword matching. */
+    font-variant-ligatures: none;
   }
   .name { text-align: center; font-size: 20pt; font-weight: 700; color: #1F3864; letter-spacing: .3px; }
   .title { text-align: center; font-size: 12pt; margin-top: 1px; }
@@ -34,6 +38,7 @@ CSS = """
     letter-spacing: .3px;
   }
   p { margin: 0 0 3px; }
+  .summary { text-align: justify; }
   .skill { margin: 0 0 1.5px; }
   .skill b { color: #111; }
   .jobrow { display: flex; justify-content: space-between; margin-top: 6px; }
@@ -41,7 +46,7 @@ CSS = """
   .jobrow .dates { font-size: 10.5pt; white-space: nowrap; }
   .company { font-style: italic; margin: 0 0 3px; }
   ul { margin: 0 0 2px; padding-left: 16px; }
-  li { margin: 0 0 2.5px; }
+  li { margin: 0 0 2.5px; text-align: justify; }
   .pname { font-weight: 700; font-size: 11pt; margin: 6px 0 0; }
   .plink { margin: 1px 0 0; }
   .plink a { color: #0563C1; text-decoration: underline; font-size: 10.5pt; }
@@ -54,6 +59,11 @@ CSS = """
 
 def e(s):
     return escape(s, quote=True)
+
+
+def md(s):
+    """Escape s, then render **double-asterisk** spans as bold."""
+    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", e(s))
 
 
 def sep(text):
@@ -84,7 +94,7 @@ def build():
     )
 
     out.append("  <h2>Professional Summary</h2>")
-    out.append(f"  <p>{e(data.SUMMARY)}</p>")
+    out.append(f'  <p class="summary">{e(data.SUMMARY)}</p>')
 
     out.append("  <h2>Technical Skills</h2>")
     for k, v in data.SKILLS:
@@ -99,7 +109,7 @@ def build():
         out.append(f'  <p class="company">{e(job["company"])}</p>')
         out.append("  <ul>")
         for b in job["bullets"]:
-            out.append(f"    <li>{e(b)}</li>")
+            out.append(f"    <li>{md(b)}</li>")
         out.append("  </ul>")
 
     out.append("  <h2>Projects</h2>")
@@ -109,7 +119,7 @@ def build():
         out.append(f'  <p class="stack">{e(proj["stack"])}</p>')
         out.append("  <ul>")
         for b in proj["bullets"]:
-            out.append(f"    <li>{e(b)}</li>")
+            out.append(f"    <li>{md(b)}</li>")
         out.append("  </ul>")
 
     out.append("  <h2>Education</h2>")

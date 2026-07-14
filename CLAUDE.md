@@ -54,6 +54,22 @@ python3 build_html.py resume.html                   # HTML
 
 Both builders read `resume_data.py`, so edit content once and rebuild both.
 
+### PDF gotchas (learned the hard way)
+
+- **Export the PDF from the `build_html.py` -> headless-Chrome pipeline above, not
+  by opening the `.docx` in Pages or another app.** Pages substitutes a font
+  (Calibri is not on macOS) whose ligature glyphs carry a broken ToUnicode map, so
+  the PDF *looks* perfect but its text layer extracts as garbage
+  (`Functions` -> `FuncMons`, `Kafka` -> `KaIa`) and fails ATS keyword matching.
+- **`build_html.py` sets `font-variant-ligatures: none`** so Chrome does not emit
+  fi/fl ligatures (`Airflow` -> `Airﬂow`) into the PDF text layer. Keep it.
+- **Bullets are the standard `•`.** A decorative glyph (e.g. the U+27A2 arrowhead)
+  has no font in headless Chrome and renders as a tofu box in the PDF, even though
+  it looks fine in Word. Standard bullets render in every engine.
+- **Verify both ways:** extract the PDF text (keywords must read as plain ASCII)
+  *and* look at a rendered page. Text extraction alone will not catch a marker that
+  renders as a box; a visual check alone will not catch garbled ligature text.
+
 ## Skills in this repo
 
 - `honest-resume-builder` — build/rewrite a truthful, ATS-safe resume.
