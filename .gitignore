@@ -5,6 +5,8 @@ resume_data.py
 Past Resources/
 # private working doc: status + verified fact pool
 CLAUDE.local.md
+# review methodology notes with personal career facts
+resume-review-playbook.md
 
 # --- Generated resume outputs (contain PII) ---
 *.docx

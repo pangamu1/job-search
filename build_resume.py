@@ -4,6 +4,7 @@
 Usage: python3 build_resume.py <out.docx>
 Content lives in resume_data.py (gitignored). This file is layout only, no PII.
 """
+import re
 import sys
 from docx import Document
 from docx.shared import Pt, RGBColor, Mm, Cm
@@ -66,6 +67,17 @@ def run(p, text, **kw):
     return set_run(p.add_run(text), **kw)
 
 
+def run_markup(p, text, **base_kw):
+    """Add text to paragraph p, bolding **double-asterisk** spans."""
+    for i, seg in enumerate(re.split(r"\*\*(.+?)\*\*", text)):
+        if not seg:
+            continue
+        kw = dict(base_kw)
+        if i % 2 == 1:
+            kw["bold"] = True
+        run(p, seg, **kw)
+
+
 def add_hyperlink(p, url, text, size=BODY):
     part = p.part
     r_id = part.relate_to(
@@ -106,12 +118,14 @@ def section_heading(text):
     return p
 
 
-def bullet(text):
+def bullet(text, align=None):
     p = doc.add_paragraph(style="List Bullet")
     p.paragraph_format.space_after = Pt(2)
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.line_spacing = 1.0
-    run(p, text)
+    if align is not None:
+        p.alignment = align
+    run_markup(p, text)
     return p
 
 
@@ -148,7 +162,7 @@ add_hyperlink(p, c["github_url"], c["github_text"])
 
 # ============ SUMMARY ============
 section_heading("Professional Summary")
-p = para(space_after=3)
+p = para(space_after=3, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
 run(p, data.SUMMARY)
 
 # ============ SKILLS ============
@@ -163,19 +177,19 @@ section_heading("Experience")
 for job in data.EXPERIENCE:
     job_header(job["role"], job["dates"], job["company"])
     for b in job["bullets"]:
-        bullet(b)
+        bullet(b, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
 
 # ============ PROJECTS ============
 section_heading("Projects")
 for i, proj in enumerate(data.PROJECTS):
     p = para(space_before=6 if i else 4, space_after=0)
+    p.paragraph_format.tab_stops.add_tab_stop(RIGHT_TAB, WD_TAB_ALIGNMENT.RIGHT)
     run(p, proj["name"], size=11, bold=True)
-    p = para(space_after=0)
-    add_hyperlink(p, proj["url"], proj["url_text"])
+    run(p, "\t" + proj["dates"], size=BODY)
     p = para(space_after=3)
-    run(p, proj["stack"], size=10, italic=True)
+    add_hyperlink(p, proj["url"], proj["url_text"])
     for b in proj["bullets"]:
-        bullet(b)
+        bullet(b, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
 
 # ============ EDUCATION ============
 section_heading("Education")
