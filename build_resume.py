@@ -183,11 +183,11 @@ for job in data.EXPERIENCE:
 section_heading("Projects")
 for i, proj in enumerate(data.PROJECTS):
     p = para(space_before=6 if i else 4, space_after=0)
+    p.paragraph_format.tab_stops.add_tab_stop(RIGHT_TAB, WD_TAB_ALIGNMENT.RIGHT)
     run(p, proj["name"], size=11, bold=True)
-    p = para(space_after=0)
-    add_hyperlink(p, proj["url"], proj["url_text"])
+    run(p, "\t" + proj["dates"], size=BODY)
     p = para(space_after=3)
-    run(p, proj["stack"], size=10, italic=True)
+    add_hyperlink(p, proj["url"], proj["url_text"])
     for b in proj["bullets"]:
         bullet(b, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
 

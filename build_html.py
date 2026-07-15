@@ -114,9 +114,11 @@ def build():
 
     out.append("  <h2>Projects</h2>")
     for proj in data.PROJECTS:
-        out.append(f'  <p class="pname">{e(proj["name"])}</p>')
+        out.append(
+            f'  <div class="jobrow"><span class="role">{e(proj["name"])}</span>'
+            f'<span class="dates">{e(proj["dates"])}</span></div>'
+        )
         out.append(f'  <p class="plink"><a href="{e(proj["url"])}">{e(proj["url_text"])}</a></p>')
-        out.append(f'  <p class="stack">{e(proj["stack"])}</p>')
         out.append("  <ul>")
         for b in proj["bullets"]:
             out.append(f"    <li>{md(b)}</li>")
